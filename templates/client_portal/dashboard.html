@@ -1,0 +1,56 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Dashboard - SunriseGeo Portal{% endblock %}
+
+{% block content %}
+<div class="card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+        <h1>Welcome back, {{ user.username }}!</h1> {# Use user object from context #}
+        <p>Here's an overview of your projects.</p>
+    </div>
+    <div style="background-color: #ffedd5; color: #9a3412; padding: 0.5rem 1rem; border-radius: 4px; font-weight: bold;">
+        {{ active_count }} Active Projects
+    </div>
+</div>
+
+
+<div class="card">
+    <h2>Your Projects</h2>
+    {% if projects %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Deadline</th>
+                    <th>Last Updated</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.status }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <progress value="{{ project.progress|default:0 }}" max="100" style="width: 80px; height: 10px; margin-right: 5px;"></progress>
+                            <span>{{ project.progress|default:0 }}%</span> {# Use default filter if progress might be None #}
+                        </div>
+                    </td>
+                    <td>{{ project.deadline|default:'N/A' }}</td>
+                    <td>{{ project.lastUpdated|default:'N/A' }}</td>
+                    <td>
+                         {# Use the url template tag with namespace and argument #}
+                        <a href="{% url 'portal:project_detail' project_id=project.id %}" class="button" style="padding: 0.3rem 0.6rem; font-size: 0.9em;">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No projects found.</p>
+    {% endif %}
+ </div>
+{% endblock %}

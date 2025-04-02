@@ -1,0 +1,106 @@
+{% extends "portal/base.html" %}
+
+{% block title %}{{ project.name }} - Project Details{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+         <div>
+            <h1>{{ project.name }}</h1>
+            <p><em>Status: {{ project.status }}</em></p>
+            <p>{{ project.description|default:"No description available." }}</p>
+         </div>
+         <div>
+             <a href="{% url 'portal:dashboard' %}" class="button" style="margin-left: 1rem;">Back to Dashboard</a>
+         </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+
+    {# Info Column #}
+    <div class="card">
+        <h2>Project Information</h2>
+        <dl>
+            <dt>Client:</dt><dd>{{ project.client|default:'N/A' }}</dd>
+            <dt>Location:</dt><dd>{{ project.location|default:'N/A' }}</dd>
+            <dt>Start Date:</dt><dd>{{ project.startDate|default:'N/A' }}</dd>
+            <dt>Deadline:</dt><dd>{{ project.deadline|default:'N/A' }}</dd>
+            <dt>Last Updated:</dt><dd>{{ project.lastUpdated|default:'N/A' }}</dd>
+        </dl>
+    </div>
+
+    {# Progress & Team Column #}
+    <div class="card">
+         <h2>Progress Overview</h2>
+         <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
+                <span>Overall Progress</span>
+                <strong>{{ project.progress|default:0 }}%</strong>
+            </div>
+            <progress value="{{ project.progress|default:0 }}" max="100" style="width: 100%; height: 15px;"></progress>
+        </div>
+
+        <h3>Project Team</h3>
+        {% if project.teamMembers %}
+            <ul style="list-style: none; padding-left: 0;">
+                {% for member in project.teamMembers %}
+                    <li style="margin-bottom: 0.5rem;">{{ member.name }} ({{ member.role }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No team members assigned.</p>
+        {% endif %}
+    </div>
+
+    {# Timeline Column #}
+    <div class="card" style="grid-column: span 1 / span 2;"> {# Make timeline span wider if needed #}
+        <h2>Project Timeline</h2>
+        {% if project.timelineEvents %}
+            <ul style="list-style: none; padding-left: 0;">
+                {% for event in project.timelineEvents %}
+                    <li style="border-left: 3px solid #ccc; padding-left: 1rem; margin-bottom: 1rem; position: relative;">
+                         <span style="position: absolute; left: -9px; top: 0; background: #f97316; color: white; border-radius: 50%; width: 15px; height: 15px; display: inline-block; font-size: 10px; line-height: 15px; text-align: center;">•</span>
+                         <strong>{{ event.title }}</strong> ({{ event.status }}) - <small>{{ event.date }}</small>
+                         <p style="margin-top: 0.3rem; margin-bottom: 0;">{{ event.description }}</p>
+                     </li>
+                {% endfor %}
+             </ul>
+        {% else %}
+            <p>No timeline events recorded.</p>
+        {% endif %}
+    </div>
+
+    {# Documents Column #}
+    <div class="card" style="grid-column: span 1 / span 2;"> {# Make documents span wider if needed #}
+        <h2>Project Documents</h2>
+        {% if project.documents %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Upload Date</th>
+                        <th>Size</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in project.documents %}
+                    <tr>
+                        <td>{{ doc.name }}</td>
+                        <td>{{ doc.uploadDate }}</td>
+                        <td>{{ doc.size }}</td>
+                        <td><a href="#">Download</a></td> {# Add actual download links later #}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No documents uploaded.</p>
+        {% endif %}
+        {# Add upload button/form later #}
+    </div>
+
+</div> {# End Grid #}
+
+{% endblock %}

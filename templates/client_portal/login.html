@@ -1,0 +1,51 @@
+{% extends "portal/base.html" %}
+
+{% block title %}Login - SunriseGeo Portal{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 2rem auto;">
+    <div class="card">
+        <h2>Client Portal Access</h2>
+        <p>Sign in to manage your projects.</p>
+
+        {# Django's LoginView handles errors via the 'form' context variable #}
+        {% if form.errors %}
+            <p style="color: red;">Your username and password didn't match. Please try again.</p>
+        {% endif %}
+
+        {% if next %}
+            {% if user.is_authenticated %}
+            <p>Your account doesn't have access to this page. To proceed,
+            please login with an account that has access.</p>
+            {% else %}
+            <p>Please login to see this page.</p>
+            {% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'portal:login' %}">
+            {% csrf_token %} {# IMPORTANT: Security token required by Django forms #}
+
+            {# Render form fields automatically (provided by LoginView) #}
+            <div>
+                <label for="{{ form.username.id_for_label }}">Email (Username):</label>
+                {{ form.username }} {# Renders the input field #}
+            </div>
+             <div>
+                <label for="{{ form.password.id_for_label }}">Password:</label>
+                {{ form.password }} {# Renders the input field #}
+            </div>
+
+             {# Hidden field for redirect URL after login #}
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <div>
+                <button type="submit" class="button">Sign in</button>
+            </div>
+        </form>
+
+        {# Optional: Add password reset link later #}
+        {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
+
+    </div>
+</div>
+{% endblock %}
