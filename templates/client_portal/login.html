@@ -18,12 +18,12 @@
       
       <div class="rounded-md shadow-sm -space-y-px">
         <div class="mb-4">
-          <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Email address</label>
+          <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Username</label>
           <input
             id="{{ form.username.id_for_label }}"
             name="{{ form.username.html_name }}"
-            type="email"
-            autocomplete="email"
+            type="text"
+            autocomplete="username"
             required
             class="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
           />
