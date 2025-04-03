@@ -1,51 +1,78 @@
-{% extends "portal/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Login - SunriseGeo Portal{% endblock %}
 
 {% block content %}
-<div style="max-width: 400px; margin: 2rem auto;">
-    <div class="card">
-        <h2>Client Portal Access</h2>
-        <p>Sign in to manage your projects.</p>
-
-        {# Django's LoginView handles errors via the 'form' context variable #}
-        {% if form.errors %}
-            <p style="color: red;">Your username and password didn't match. Please try again.</p>
-        {% endif %}
-
-        {% if next %}
-            {% if user.is_authenticated %}
-            <p>Your account doesn't have access to this page. To proceed,
-            please login with an account that has access.</p>
-            {% else %}
-            <p>Please login to see this page.</p>
-            {% endif %}
-        {% endif %}
-
-        <form method="post" action="{% url 'portal:login' %}">
-            {% csrf_token %} {# IMPORTANT: Security token required by Django forms #}
-
-            {# Render form fields automatically (provided by LoginView) #}
-            <div>
-                <label for="{{ form.username.id_for_label }}">Email (Username):</label>
-                {{ form.username }} {# Renders the input field #}
-            </div>
-             <div>
-                <label for="{{ form.password.id_for_label }}">Password:</label>
-                {{ form.password }} {# Renders the input field #}
-            </div>
-
-             {# Hidden field for redirect URL after login #}
-            <input type="hidden" name="next" value="{{ next }}">
-
-            <div>
-                <button type="submit" class="button">Sign in</button>
-            </div>
-        </form>
-
-        {# Optional: Add password reset link later #}
-        {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
-
+<!-- Main Content -->
+<main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-lg shadow-md">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        Welcome
+      </h2>
     </div>
-</div>
+    
+    <!-- Login Form -->
+    <form class="mt-8 space-y-6" action="{% url 'client_portal:login' %}" method="post">
+      {% csrf_token %}
+      
+      <div class="rounded-md shadow-sm -space-y-px">
+        <div class="mb-4">
+          <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Email address</label>
+          <input
+            id="{{ form.username.id_for_label }}"
+            name="{{ form.username.html_name }}"
+            type="email"
+            autocomplete="email"
+            required
+            class="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+          />
+        </div>
+        <div>
+          <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            id="{{ form.password.id_for_label }}"
+            name="{{ form.password.html_name }}"
+            type="password"
+            autocomplete="current-password"
+            required
+            class="mt-1 p-3 block w-full border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+          />
+        </div>
+      </div>
+      
+      <!-- Error Messages -->
+      {% if form.errors %}
+        <div class="bg-red-100 text-red-800 p-4 rounded-md">
+          Your username and password didn't match. Please try again.
+        </div>
+      {% endif %}
+      
+      {% if next %}
+        {% if user.is_authenticated %}
+          <div class="bg-yellow-100 text-yellow-800 p-4 rounded-md">
+            Your account doesn't have access to this page. To proceed,
+            please login with an account that has access.
+          </div>
+        {% else %}
+          <div class="bg-blue-100 text-blue-800 p-4 rounded-md">
+            Please login to see this page.
+          </div>
+        {% endif %}
+      {% endif %}
+      
+      <!-- Hidden field for redirect -->
+      <input type="hidden" name="next" value="{{ next }}">
+      
+      <div>
+        <button
+          type="submit"
+          class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-150 ease-in-out"
+        >
+          Sign in
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
 {% endblock %}

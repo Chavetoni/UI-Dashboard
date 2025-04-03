@@ -31,8 +31,29 @@ def _get_project_by_id(project_id):
     """Helper function to get a project by its ID."""
     for project in MOCK_PROJECTS:
         if project['id'] == project_id:
+            # Add mock timeline events and documents for project details page
+            if project_id == 1:
+                project['teamMembers'] = [
+                    {"id": 1, "name": "Nestor A.", "role": "Geotechnical Project Manager"},
+                    {"id": 2, "name": "Ron L.", "role": "Geotechnical Project Manager"},
+                    {"id": 3, "name": "Daniel G.", "role": "Geotechnical Project Manager"},
+                    {"id": 4, "name": "Amos E.", "role": "Geotechnical Department Manager"}
+                ]
+                project['timelineEvents'] = [
+                    {"id": 1, "date": "Jan 15, 2025", "title": "Project Kickoff", "description": "Initial client meeting and site overview.", "status": "Completed"},
+                    {"id": 2, "date": "Feb 5, 2025", "title": "Site Survey", "description": "Comprehensive site survey and sample collection.", "status": "Completed"},
+                    {"id": 3, "date": "Mar 1, 2025", "title": "Lab Analysis", "description": "Soil testing and analysis of site samples.", "status": "Completed"},
+                    {"id": 4, "date": "Mar 28, 2025", "title": "Preliminary Report", "description": "Initial findings and recommendations drafted.", "status": "In Progress"},
+                    {"id": 5, "date": "Apr 10, 2025", "title": "Foundation Analysis", "description": "Detailed foundation requirements and specifications.", "status": "Upcoming"},
+                    {"id": 6, "date": "Apr 30, 2025", "title": "Final Report", "description": "Final report submission and client presentation.", "status": "Upcoming"}
+                ]
+                project['documents'] = [
+                    {"id": 1, "name": "Final Report Project.pdf", "uploadDate": "Mar 28, 2025", "size": "4.8 MB"},
+                    {"id": 2, "name": "Final Report Project.docx", "uploadDate": "Mar 28, 2025", "size": "2.3 MB"}
+                ]
             return project
     return None
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -42,32 +63,33 @@ def index(request):
     
 @login_required
 def dashboard(request):
-     # Fetch projects relevant to request.user if possible, otherwise use mock
-    user_projects = MOCK_PROJECTS # Get the list of projects
+    # Fetch projects relevant to request.user if possible, otherwise use mock
+    user_projects = MOCK_PROJECTS  # Get the list of projects
     active_project_count = sum(1 for p in user_projects if p['status'] not in ['Completed', 'Cancelled'])
 
     context = {
-        # 'project': project, # Remove single project
-        'projects': user_projects, # Add list of projects
-        'active_count': active_project_count, # Add count
-        'view_name': 'dashboard', # Correct view name
+        'projects': user_projects,
+        'active_count': active_project_count,
+        'view_name': 'dashboard',
     }
 
-    # return render(request, 'portal/project_detail.html', context) # Incorrect template
-    return render(request, 'portal/dashboard.html', context) # CORRECTED: Render dashboard template
+    # Update to use the tailwind template
+    return render(request, 'client_portal/dashboard.html', context)
+
+
 
 @login_required
 def project_detail(request, project_id):
     """Displays details for a specific project."""
-    # project = get_object_or_404(ProjectModel, pk=project_id) # How you'd do it with models
-    project = _get_project_by_id(project_id) # Using mock data helper
+    project = _get_project_by_id(project_id)  # Using mock data helper
 
     if project is None:
         messages.warning(request, f"Project with ID {project_id} not found.")
-        return redirect('client_portal:dashboard') # Use correct namespace if defined
+        return redirect('client_portal:dashboard')  # Use correct namespace if defined
 
     context = {
         'project': project,
         'view_name': 'project_detail'
     }
-    return render(request, 'client_portal/project_detail.html', context) 
+    # Update to use the tailwind template
+    return render(request, 'client_portal/project_detail.html', context)

@@ -1,88 +1,123 @@
-{% load static %} {# Required for loading static files like CSS later #}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SunriseGeo Portal{% endblock %}</title>
-    <!-- Add CSS links here later -->
-    <!-- <link rel="stylesheet" href="{% static 'portal/css/style.css' %}"> -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            500: '#f97316', // Tailwind's default orange-500
+                            600: '#ea580c', // Tailwind's default orange-600
+                        },
+                        gray: {
+                            100: '#f3f4f6', // bg-gray-100
+                            200: '#e5e7eb', // bg-gray-200
+                            300: '#d1d5db', // border-gray-300
+                            400: '#9ca3af', // bg-gray-400
+                            500: '#6b7280', // text-gray-500
+                            600: '#4b5563', // text-gray-600
+                            700: '#374151', // text-gray-700
+                            800: '#1f2937', // text-gray-800
+                            900: '#111827', // text-gray-900
+                        },
+                        green: { // Added for project status/timeline
+                            100: '#d1fae5',
+                            600: '#059669',
+                            800: '#065f46',
+                        },
+                        blue: { // Added for project status/timeline
+                            100: '#dbeafe',
+                            600: '#2563eb',
+                            800: '#1e40af',
+                        },
+                        yellow: { // For warning statuses
+                            100: '#fef3c7',
+                            800: '#92400e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'], // Assuming Inter font
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Basic styles adapted from Flask example - refine as needed */
-        body { font-family: sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; background-color: #f4f4f4; }
-        header { background-color: #f97316; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        header a { color: white; text-decoration: none; margin-left: 1rem; }
-        header a:hover, header a.active { text-decoration: underline; font-weight: bold; }
-        .logo { font-size: 1.5rem; font-weight: bold; }
-        nav ul { list-style: none; padding: 0; margin: 0; display: flex; align-items: center;}
-        nav li { margin-left: 1rem; }
-        main { flex-grow: 1; padding: 1.5rem; max-width: 1200px; margin: 10px auto; width: 100%; box-sizing: border-box; }
-        footer { background-color: #eee; text-align: center; padding: 1rem; margin-top: auto; font-size: 0.9em; color: #555; border-top: 1px solid #ddd; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Django messages styling */
         .messages { list-style: none; padding: 0; margin: 1rem 0; }
         .messages li { padding: 0.8rem; margin-bottom: 0.5rem; border-radius: 4px; border: 1px solid transparent;}
         .messages li.success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
         .messages li.info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
         .messages li.warning { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
-        .messages li.error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; } /* Django uses 'error' tag level */
-        .card { background-color: white; border: 1px solid #ddd; border-radius: 5px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; background-color: white; }
-        th, td { border: 1px solid #ddd; padding: 0.75rem; text-align: left; vertical-align: top;}
-        th { background-color: #f2f2f2; font-weight: bold;}
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        tr:hover { background-color: #f1f1f1; }
-        h1, h2, h3 { color: #333; margin-top: 0; }
-        .button { display: inline-block; padding: 0.6rem 1.2rem; background-color: #f97316; color: white; border: none; border-radius: 4px; text-decoration: none; cursor: pointer; text-align: center; }
-        .button:hover { background-color: #ea580c; }
-        form p, form div { margin-bottom: 1rem; } /* Style form elements */
-        label { display: block; margin-bottom: 0.3rem; font-weight: bold; }
-        input[type="email"], input[type="password"], input[type="text"] { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        dl dt { font-weight: bold; float: left; width: 100px; clear: left; margin-bottom: 0.5em;}
-        dl dd { margin-left: 110px; margin-bottom: 0.5em;}
+        .messages li.error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        
+        {% block extra_styles %}{% endblock %}
     </style>
 </head>
-<body>
-    <header>
-        <div class="logo">SunriseGeo</div>
+<body class="flex flex-col min-h-screen bg-gray-100">
+
+    <!-- Header -->
+    <header class="bg-orange-500 text-white py-3 px-6 flex justify-between items-center shadow-md">
+        <div class="text-xl font-bold">SunriseGeo</div>
         <nav>
-            <ul>
-                {# Check if user is authenticated #}
+            <ul class="flex space-x-6 text-sm font-semibold">
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'portal:dashboard' %}" class="{% if view_name == 'dashboard' %}active{% endif %}">Dashboard</a></li>
-                    <li><span style="color: #ffedd5; margin-left: 20px;">Welcome, {{ user.username }}!</span></li>
+                    <li><a href="{% url 'client_portal:dashboard' %}" class="hover:underline {% if view_name == 'dashboard' %}underline{% endif %}">Home</a></li>
+                    <li><a href="{% url 'client_portal:dashboard' %}" class="hover:underline {% if view_name == 'dashboard' %}underline{% endif %}">Projects</a></li>
+                    <li><a href="#" class="hover:underline">Reports</a></li>
                     <li>
-                        {# Logout usually doesn't need a form in simple cases if using GET, but POST is safer #}
-                        <form action="{% url 'portal:logout' %}" method="post" style="display: inline; margin-left: 1rem;">
+                        <form action="{% url 'client_portal:logout' %}" method="post" style="display: inline;">
                             {% csrf_token %}
-                            <button type="submit" class="button" style="background: none; border: none; color: white; padding: 0; text-decoration: underline; cursor: pointer;">Logout</button>
+                            <button type="submit" class="hover:underline bg-transparent border-0 p-0 cursor-pointer text-white font-semibold text-sm">Logout</button>
                         </form>
                     </li>
                 {% else %}
-                    <li><a href="#">Home</a></li> {# Link to a potential marketing page #}
-                    <li><a href="{% url 'portal:login' %}" class="{% if view_name == 'login' %}active{% endif %}">Login</a></li>
+                    <li><a href="#" class="hover:underline">Home</a></li>
+                    <li><a href="{% url 'client_portal:login' %}" class="hover:underline {% if view_name == 'login' %}underline{% endif %}">Login</a></li>
                 {% endif %}
             </ul>
         </nav>
     </header>
 
-    <main>
-        {# Display Django messages #}
-        {% if messages %}
+    <!-- Display Django messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-6 mt-4">
             <ul class="messages">
                 {% for message in messages %}
                     <li class="{{ message.tags }}">{{ message }}</li>
                 {% endfor %}
             </ul>
-        {% endif %}
+        </div>
+    {% endif %}
 
-        {# Main content block #}
-        {% block content %}{% endblock %}
-    </main>
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
 
-    <footer>
-         © {% now "Y" %} SunriseGeo. All rights reserved. | {# Django template tag for current year #}
-        <a href="#">Contact Support</a> |
-        <a href="#">Privacy Policy</a>
+    <!-- Footer -->
+    <footer class="bg-white py-4 px-6 border-t mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
+            <div class="text-sm text-gray-500 mb-2 sm:mb-0">
+                &copy; {% now "Y" %} SunriseGeo. All rights reserved.
+            </div>
+            <div class="text-sm text-gray-500">
+                <a href="#" class="text-gray-600 hover:text-orange-500 mr-4">Contact Support</a>
+                <a href="#" class="text-gray-600 hover:text-orange-500">Privacy Policy</a>
+            </div>
+        </div>
     </footer>
 
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>
