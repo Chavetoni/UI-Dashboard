@@ -9,30 +9,33 @@
     <script>
         // Configure Tailwind
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
+                        primary: '#f97316', // Orange
+                        'hover': '#ea580c', // Darker Orange
                         orange: {
-                            500: '#f97316', // Tailwind's default orange-500
-                            600: '#ea580c', // Tailwind's default orange-600
+                            500: '#f97316', 
+                            600: '#ea580c', 
                         },
                         gray: {
-                            100: '#f3f4f6', // bg-gray-100
-                            200: '#e5e7eb', // bg-gray-200
-                            300: '#d1d5db', // border-gray-300
-                            400: '#9ca3af', // bg-gray-400
-                            500: '#6b7280', // text-gray-500
-                            600: '#4b5563', // text-gray-600
-                            700: '#374151', // text-gray-700
-                            800: '#1f2937', // text-gray-800
-                            900: '#111827', // text-gray-900
+                            100: '#f3f4f6', 
+                            200: '#e5e7eb', 
+                            300: '#d1d5db', 
+                            400: '#9ca3af', 
+                            500: '#6b7280', 
+                            600: '#4b5563', 
+                            700: '#374151', 
+                            800: '#1f2937', 
+                            900: '#111827', 
                         },
-                        green: { // Added for project status/timeline
+                        green: { // for project status/timeline
                             100: '#d1fae5',
                             600: '#059669',
                             800: '#065f46',
                         },
-                        blue: { // Added for project status/timeline
+                        blue: { // for project status/timeline
                             100: '#dbeafe',
                             600: '#2563eb',
                             800: '#1e40af',
@@ -40,20 +43,105 @@
                         yellow: { // For warning statuses
                             100: '#fef3c7',
                             800: '#92400e',
-                        }
+                        },                                       
+
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'], // Assuming Inter font
+                        sans: ['Inter', 'sans-serif'], 
                     },
                 }
             }
         }
+
+        function updateDarkModeIcons() {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const sunIcon =document.getElementById('darkModeIdcon');
+            const moonIcon = DocumentTimeline.getElementById('lightModeIcon');
+
+            if (sunIcon && moonIcon) {
+                if (isDarkMode) {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                } else {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                }
+            }
+        }
+
+        function setupDarkMode() {
+            if(localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else if (localStorage.theme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            }
+            updateDarkModeIcons();
+        }
+
+        setupDarkMode();
+
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
+
+        @keyframes pulse {
+            0%, 100% { opacity:1; }
+            50% { opacity: 0.5; }
+        }
+
+        .animate-pulse {
+            animation:  pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .skeleton {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            border-radius: 0.25rem; /* rounded */
+        }
+
+        .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: rgba(0,0,0,0.8);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0,0,0,0.8) transparent transparent transparent;
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+  }
         
         /* Django messages styling */
         .messages { list-style: none; padding: 0; margin: 1rem 0; }
@@ -65,29 +153,40 @@
     </style>
     {% block extra_styles %}{% endblock %}
 </head>
-<body class="flex flex-col min-h-screen bg-gray-100">
+<body class="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
 
     <!-- Header -->
-    <header class="bg-orange-500 text-white py-3 px-6 flex justify-between items-center shadow-md">
-        <div class="text-xl font-bold">SunriseGeo</div>
-        <nav>
-
-            <ul class="flex space-x-6 text-sm font-semibold">
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'client_portal:dashboard' %}" class="hover:underline {% if view_name == 'dashboard' %}underline{% endif %}">Dashboard</a></li>
-                    <li>
-                        <form action="{% url 'client_portal:logout' %}" method="post" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="hover:underline bg-transparent border-0 p-0 cursor-pointer text-white font-semibold text-sm">Logout</button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li><a href="{% url 'client_portal:login' %}" class="hover:underline {% if view_name == 'login' %}underline{% endif %}">Login</a></li>
-                {% endif %}
-            </ul>
-
-        </nav>
-    </header>
+<header class="bg-orange-500 text-white py-3 px-6 flex justify-between items-center shadow-md">
+    <div class="text-xl font-bold">SunriseGeo</div>
+    <nav>
+        <ul class="flex space-x-6 text-sm font-semibold">
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'client_portal:dashboard' %}" class="hover:underline {% if view_name == 'dashboard' %}underline{% endif %}">Dashboard</a></li>
+                <li>
+                    <form action="{% url 'client_portal:logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="hover:underline bg-transparent border-0 p-0 cursor-pointer text-white font-semibold text-sm">Logout</button>
+                    </form>
+                </li>
+                <!-- Move the toggle inside the ul -->
+                <li>
+                    <button id="darkModeToggle" arai-label="Toggle Dark Mode" title="Toggle Dark Mode" class="p-2 rounded-full text-white hover:bg-orange-600 focus:outline-none transition-colors duration-300 flex items-center">
+                        <!-- Sun icon (for dark mode) -->
+                        <svg id="darkModeIcon" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <!-- Moon icon (for light mode) -->
+                        <svg id="lightModeIcon" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+                </li>
+            {% else %}
+                <li><a href="{% url 'client_portal:login' %}" class="hover:underline {% if view_name == 'login' %}underline{% endif %}">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
 
     <!-- Display Django messages -->
     {% if messages %}
@@ -104,18 +203,46 @@
     {% block content %}{% endblock %}
 
     <!-- Footer -->
-    <footer class="bg-white py-4 px-6 border-t mt-auto">
+    <footer class="bg-white dark:bg-gray-800 py-4 px-6 border-t dark:border-gray-700 mt-auto">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
-            <div class="text-sm text-gray-500 mb-2 sm:mb-0">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-2 sm:mb-0">
                 &copy; {% now "Y" %} SunriseGeo. All rights reserved.
             </div>
-            <div class="text-sm text-gray-500">
-                <a href="#" class="text-gray-600 hover:text-orange-500 mr-4">Contact Support</a>
-                <a href="#" class="text-gray-600 hover:text-orange-500">Privacy Policy</a>
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 mr-4">Contact Support</a>
+                <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400">Privacy Policy</a>
             </div>
         </div>
     </footer>
 
     {% block extra_scripts %}{% endblock %}
+
+    <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const sunIcon = document.getElementById('darkModeIcon');
+    const moonIcon = document.getElementById('lightModeIcon');
+
+    function updateDarkModeIcons() {
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        if (sunIcon && moonIcon) { 
+            sunIcon.classList.toggle('hidden', !isDarkMode);
+            moonIcon.classList.toggle('hidden', isDarkMode);
+        }
+    }
+    
+   // Set initial state
+    updateDarkModeIcons();
+
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', function() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            updateDarkModeIcons();
+        })
+    }
+});
+    </script>
 </body>
 </html>
