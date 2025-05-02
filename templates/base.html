@@ -156,20 +156,24 @@
 <body class="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
 
     <!-- Header -->
-<header class="bg-orange-500 text-white py-3 px-6 flex justify-between items-center shadow-md">
-    <div class="text-xl font-bold">SunriseGeo</div>
-    <nav>
-        <ul class="flex space-x-6 text-sm font-semibold">
-            {% if user.is_authenticated %}
-                <li><a href="{% url 'client_portal:dashboard' %}" class="hover:underline {% if view_name == 'dashboard' %}underline{% endif %}">Dashboard</a></li>
-                <li>
-                    <form action="{% url 'client_portal:logout' %}" method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="hover:underline bg-transparent border-0 p-0 cursor-pointer text-white font-semibold text-sm">Logout</button>
-                    </form>
-                </li>
-                <!-- Move the toggle inside the ul -->
-                <li>
+    <header class="bg-orange-500 text-white px-4 sm:px-6 flex justify-between items-center shadow-md h-16">
+        <!-- Replace the text div with an image -->
+        <div class="flex-shrink-0 flex items-center h-full py-2">
+            <a href="/" class="flex items-center">
+            <img src="{% static 'images/meg_logo.webp' %}" alt="MEG Engineers" class="h-[13rem] w-auto object-contain">
+            </a>
+        </div>
+
+        <nav class=" h-full">
+            <ul class="flex h-full space-x-4 items-center text-sm font-semibold">
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'client_portal:dashboard' %}" class="hover:underline {% if view_name == 'dashboard' %}underline{% endif %}">Dashboard</a></li>
+                    <li>
+                        <form action="{% url 'client_portal:logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="hover:underline bg-transparent border-0 p-0 cursor-pointer text-white font-semibold text-sm">Logout</button>
+                        </form>
+                    </li>
                     <button id="darkModeToggle" arai-label="Toggle Dark Mode" title="Toggle Dark Mode" class="p-2 rounded-full text-white hover:bg-orange-600 focus:outline-none transition-colors duration-300 flex items-center">
                         <!-- Sun icon (for dark mode) -->
                         <svg id="darkModeIcon" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -181,8 +185,7 @@
                         </svg>
                     </button>
                 </li>
-            {% else %}
-                <li><a href="{% url 'client_portal:login' %}" class="hover:underline {% if view_name == 'login' %}underline{% endif %}">Login</a></li>
+
             {% endif %}
         </ul>
     </nav>
